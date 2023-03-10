@@ -21,7 +21,9 @@ class SquareTest(unittest.TestCase):
         y = square(x)
         y.backward()
         num_grad = numerical_diff(square, x)
-        flg = np.allclose(x.grad, num_grad)
+        flg = np.allclose(x.grad, num_grad, rtol=1e-05, atol=1e-08) # 두 값이 가까운지 판정 |a-b| <= (atol + rtol * |b|) => bool 값으로 반환
         self.assertTrue(flg)
 
 unittest.main()
+
+# python -m unittest discover tests => tests 폴더 내부 전부 검사해서 unittest 실행

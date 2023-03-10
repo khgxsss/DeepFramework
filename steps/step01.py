@@ -33,19 +33,24 @@ class Variable:
                 funcs.append(x.creator) # 한 순서 앞의 함수를 리스트에 추가
 
 class Function: # Define-by-Run 구조 구현 : Linked List
-    def __call__(self, input: any) -> any:
-        x = input.data
-        y = self.forward(x)
-        output = Variable(as_array(y)) # output이 scalar 여도 numpy.float 형식이 아닌 ndarray로 나오도록 변환
-        output.set_creator(self) # 출력 변수에 creator 함수 저장
-        self.input = input # 입력 변수(Variable) 유지
-        self.output = output # 출력 자체도 저장
-        return output
+    def __call__(self, *inputs) -> any: # 파라미터를 모아서 받음 (*)
+        xs = [x.data for x in inputs] # inputs 리스트의 각 원소 x에 대해 x.data를 꺼내고 꺼낸 원소들로 새로운 리스트 작성
+        ys = self.forward(*xs)# 구체적 계산 | xs = [x0, x1] 일때 self.forward(*xs)를 하면 self.forward(x0, x1)과 동일한 동작
+        if not isinstance(ys, tuple):
+            ys = (ys,)
+        outputs = [Variable(as_array(y)) for y in ys] # output이 scalar 여도 numpy.float 형식이 아닌 ndarray로 나오도록 변환
+        
+        for i, output in enumerate(outputs):
+            output.set_creator(self) # 출력 변수에 creator 함수 저장
+        
+        self.inputs = inputs # 입력 변수(Variable) 유지
+        self.outputs = outputs # 출력 자체도 저장
+        return outputs if len(outputs) > 1 else outputs[0] # 리스트의 원소가 하나라면 첫 번째 원소를 반환한다.
     
-    def forward(self, x):
+    def forward(self, xs):
         raise NotImplementedError() # 이 method는 상속하여 구현해야 한다.
     
-    def backward(self, x):
+    def backward(self, gys):
         raise NotImplementedError()
 
 class Square(Function):
@@ -66,6 +71,14 @@ class Exp(Function):
         gx = np.exp(x) * gy
         return gx
 
+class Add(Function):
+    def forward(self, x0, x1):
+        y = x0 + x1
+        return y # (y,) == return y, 튜플로 출력
+    
+    def backward(self, gys):
+        return super().backward(gys)
+
 def numerical_diff(f, x, eps=1e-4):
     x0 = Variable(x.data - eps)
     x1 = Variable(x.data + eps)
@@ -79,6 +92,9 @@ def square(x):
 def exp(x):
     return Exp()(x)
 
+def add(x0, x1):
+    return Add()(x0, x1)
+
 def as_array(x):
     if np.isscalar(x):
         return np.array(x)
@@ -86,7 +102,6 @@ def as_array(x):
 
 if __name__ == "__main__":
     # testcode
-    x = Variable(np.array(1))
-    y = square(exp(square(x)))
-    y.backward()
-    print(x.grad)
+    xs = [Variable(np.array(2)), Variable(np.array(3))]
+    y = add(*xs)
+    print(y.data)
