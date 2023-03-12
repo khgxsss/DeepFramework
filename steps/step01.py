@@ -1,4 +1,4 @@
-import cupy as np
+import numpy as np
 import weakref
 import contextlib
 
@@ -24,6 +24,15 @@ class Variable:
     
     def __mul__(self, other): # multiply 곱셈 오버로드 
         return mul(self, other)
+
+    def __rmul__(self, other): # multiply 곱셈 오버로드 
+        return mul(self, other)
+    
+    def __add__(self, other):
+        return add(self, other)
+    
+    def __radd__(self, other):
+        return add(self, other)
     
     def set_creator(self, func):
         self.creator = func # creator 함수 저장
@@ -83,6 +92,7 @@ class Variable:
 
 class Function: # Define-by-Run 구조 구현 : Linked List
     def __call__(self, *inputs) -> any: # 파라미터를 모아서 받음 (*)
+        inputs = [as_variable(x) for x in inputs] # 모두 variable 인스턴스로 변환
         xs = [x.data for x in inputs] # inputs 리스트의 각 원소 x에 대해 x.data를 꺼내고 꺼낸 원소들로 새로운 리스트 작성
         ys = self.forward(*xs)# 구체적 계산 | xs = [x0, x1] 일때 self.forward(*xs)를 하면 self.forward(x0, x1)과 동일한 동작
         if not isinstance(ys, tuple):
@@ -155,15 +165,22 @@ def exp(x):
     return Exp()(x)
 
 def add(x0, x1):
+    x1 = as_array(x1)
     return Add()(x0, x1)
 
 def mul(x0, x1):
+    x1 = as_array(x1)
     return Mul()(x0, x1)
 
 def as_array(x):
     if np.isscalar(x):
         return np.array(x)
     return x
+
+def as_variable(obj): # 다른 형식 인스턴스도 Variable로 통일해서 연산이 사용 가능하게
+    if isinstance(obj, Variable):
+        return obj
+    return Variable(obj)
 
 @contextlib.contextmanager # 데코레이터로 try ~ finally 전후로 문맥:context를 판단해서 yield 전 전처리 로직, yield 후 후처리 로직 작성
 def using_config(name, value): # 사용할 Config 속성의 이름 name을 가리킴(str), with 블록에 들어감
@@ -177,14 +194,11 @@ def using_config(name, value): # 사용할 Config 속성의 이름 name을 가�
 def no_grad(): # using_config False 값 넣을 때의 편의성 함수
     return using_config('enable_backprop', False)
 
+# Variable.__radd__=add
+# Variable.__rmul__=mul
 if __name__ == "__main__":
     # testcode
-    a = Variable(np.array(3.0))
-    b = Variable(np.array(2.0))
-    c = Variable(np.array(1.0))
-
-    y = add(mul(a,b),c)
-    y.backward()
+    a = np.array(4)
+    x = Variable(np.array(2))
+    y = a*x
     print(y)
-    print(a.grad)
-    print(b.grad)
