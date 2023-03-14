@@ -1,0 +1,7 @@
+digraph G {
+    a [label = "x", color="orange", style="filled"]
+    b [label = "y", color="orange", style="filled"]
+    c [label="Exp", color="lightblue", style="filled", shape="box"]
+    a->c
+    c->b
+}
