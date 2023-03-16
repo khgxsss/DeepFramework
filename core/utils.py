@@ -5,7 +5,7 @@ import subprocess
 from core import Variable
 
 def _dot_var(v, verbose=False): # Variable 인스턴스를 건네면 그 내용을 DOT 언어로 작성된 문자열로 바꿔서 반환
-    dot_var = '{} [label="{}", color=orange, style=filled]\n'
+    dot_var = '{} [label="{}", color="orange", style="filled"]\n'
     
     name = '' if v.name is None else v.name
     if verbose and v.data is not None:
@@ -15,7 +15,7 @@ def _dot_var(v, verbose=False): # Variable 인스턴스를 건네면 그 내용�
     return dot_var.format(id(v), name) # 변수 노드에 고유한 ID 부여
 
 def _dot_func(f): # Core 함수를 DOT 언어로 변환
-    dot_func = '{} [label="{}", color=lightblue, style=filled, shape=box]\n'
+    dot_func = '{} [label="{}", color="lightblue", style="filled", shape="box"]\n'
     txt = dot_func.format(id(f), f.__class__.__name__)
     dot_edge = '{} -> {}\n'
     for x in f.inputs: # 함수와 입력 변수의 관계
@@ -28,7 +28,7 @@ def get_dot_graph(output, verbose=True): # backward method likely (미분 가밧
     txt = ''
     funcs = []
     seen_set = set() # 중복 감지용
-    
+
     def add_func(f):
         if f not in seen_set:
             funcs.append(f)
@@ -39,23 +39,22 @@ def get_dot_graph(output, verbose=True): # backward method likely (미분 가밧
     txt += _dot_var(output, verbose)
     
     while funcs:
-        print(funcs)
-        funcs = funcs.pop()
-        txt += _dot_func(funcs)
-        for x in funcs.inputs:
+        func = funcs.pop()
+        txt += _dot_func(func)
+        for x in func.inputs:
             txt += _dot_var(x, verbose)
             
             if x.creator is not None:
                 add_func(x.creator)
-    
-    return 'diagraph g {\n' + txt + '}'
+
+    return 'digraph g {\n' + txt + '}'
 
 def plot_dot_graph(output, verbose=True, to_file='graph.png'):
     dot_graph = get_dot_graph(output, verbose)
     
     # dot 데이터를 파일에 저장
-    tmp_dir = os.path.join(os.path.expanduser('~'), '.dezero') # 홈 디렉터리(로그인 계정) -> 경로 추가
-    if not os.path.exists(tmp_dir): # ~/.dezero 디렉터리가 없다면 새로 생성
+    tmp_dir = os.path.join(os.path.expanduser('~'), '.deepcore') # 홈 디렉터리(로그인 계정) -> 경로 추가
+    if not os.path.exists(tmp_dir): # ~/.core 디렉터리가 없다면 새로 생성
         os.makedirs(tmp_dir) # makedirs 경로 내 모든 폴더 가능 <-> mkdir 폴더 하나
     graph_path = os.path.join(tmp_dir, 'tmp_graph.dot')
     

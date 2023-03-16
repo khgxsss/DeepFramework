@@ -145,24 +145,6 @@ class Function: # Define-by-Run 구조 구현 : Linked List
 
 # 연산자 오버로딩 클래스
 
-class Square(Function):
-    def forward(self, x):
-        return x**2
-    
-    def backward(self, gy):
-        x = self.inputs[0].data
-        gx = 2 * x * gy
-        return gx # ndarray 인스턴스, 출력 쪽에서 전해지는 미분값을 전달
-    
-class Exp(Function):
-    def forward(self, x):
-        return np.exp(x)
-    
-    def backward(self, gy):
-        x = self.input.data
-        gx = np.exp(x) * gy
-        return gx
-
 class Add(Function):
     def forward(self, x0, x1):
         y = x0 + x1
@@ -220,12 +202,6 @@ class Pow(Function):
 
 # 연산자 오버로딩 함수
 
-def square(x):
-    return Square()(x)
-
-def exp(x):
-    return Exp()(x)
-
 def add(x0, x1):
     x1 = as_array(x1)
     return Add()(x0, x1)
@@ -250,12 +226,57 @@ def pow(x, c):
 
 #
 
+# 계산용 추가 정의 클래스
+
+class Square(Function):
+    def forward(self, x):
+        return x**2
+    
+    def backward(self, gy):
+        x = self.inputs[0].data
+        gx = 2 * x * gy
+        return gx # ndarray 인스턴스, 출력 쪽에서 전해지는 미분값을 전달
+    
+class Exp(Function):
+    def forward(self, x):
+        return np.exp(x)
+    
+    def backward(self, gy):
+        x = self.input.data
+        gx = np.exp(x) * gy
+        return gx
+
+class Sin(Function):
+    def forward(self, x):
+        return np.sin(x)
+    
+    def backward(self, gy):
+        x = self.inputs[0].data # 순전파 시 저장된 값
+        return gy * np.cos(x) # gy = L, np.cos(x) = sindx
+
+#
+
+# 계산용 추가 정의 함수
+
+def square(x):
+    return Square()(x)
+
+def exp(x):
+    return Exp()(x)
+
+def sin(x):
+    return Sin()(x)
+
 def numerical_diff(f, x, eps=1e-4):
     x0 = Variable(x.data - eps)
     x1 = Variable(x.data + eps)
     y0 = f(x0)
     y1 = f(x1)
     return (y1.data - y0.data) / (2*eps)
+
+#
+
+# 데이터 구조 변화용 함수
 
 def as_array(x):
     if np.isscalar(x):
@@ -266,6 +287,10 @@ def as_variable(obj): # 다른 형식 인스턴스도 Variable로 통일해서 �
     if isinstance(obj, Variable):
         return obj
     return Variable(obj)
+
+#
+
+# config용 함수
 
 @contextlib.contextmanager # 데코레이터로 try ~ finally 전후로 문맥:context를 판단해서 yield 전 전처리 로직, yield 후 후처리 로직 작성
 def using_config(name, value): # 사용할 Config 속성의 이름 name을 가리킴(str), with 블록에 들어감
@@ -278,6 +303,8 @@ def using_config(name, value): # 사용할 Config 속성의 이름 name을 가�
     
 def no_grad(): # using_config False 값 넣을 때의 편의성 함수
     return using_config('enable_backprop', False)
+
+#
 
 if __name__ == "__main__":
     # testcode

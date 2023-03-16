@@ -7,6 +7,9 @@ if is_simple_core:
     from core.core_simple import no_grad
     from core.core_simple import as_array
     from core.core_simple import as_variable
+    from core.core_simple import sin
+    from core.core_simple import square
+    from core.core_simple import exp
 else:
     from core.core import Variable
     from core.core import Function

@@ -1,0 +1,219 @@
+digraph g {
+2507311998576 [label="z", color="orange", style="filled"]
+2507311998480 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311993808 -> 2507311998480
+2507311998384 -> 2507311998480
+2507311998480 -> 2507311998576
+2507311993808 [label="", color="orange", style="filled"]
+2507311998384 [label="", color="orange", style="filled"]
+2507311998192 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311998096 -> 2507311998192
+2507311998288 -> 2507311998192
+2507311998192 -> 2507311998384
+2507311998096 [label="", color="orange", style="filled"]
+2507311998288 [label="", color="orange", style="filled"]
+2507311998000 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311994816 -> 2507311998000
+2507311997904 -> 2507311998000
+2507311998000 -> 2507311998096
+2507311994816 [label="", color="orange", style="filled"]
+2507311997904 [label="", color="orange", style="filled"]
+2507311997808 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311997232 -> 2507311997808
+2507311997712 -> 2507311997808
+2507311997808 -> 2507311997904
+2507311997232 [label="", color="orange", style="filled"]
+2507311997712 [label="", color="orange", style="filled"]
+2507311997424 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311997472 -> 2507311997424
+2507311997616 -> 2507311997424
+2507311997424 -> 2507311997712
+2507311997472 [label="", color="orange", style="filled"]
+2507311997616 [label="", color="orange", style="filled"]
+2507311997328 [label="Pow", color="lightblue", style="filled", shape="box"]
+2507296939888 -> 2507311997328
+2507311997328 -> 2507311997472
+2507296939888 [label="y", color="orange", style="filled"]
+2507311997136 [label="Sub", color="lightblue", style="filled", shape="box"]
+2507311996496 -> 2507311997136
+2507311997040 -> 2507311997136
+2507311997136 -> 2507311997232
+2507311996496 [label="", color="orange", style="filled"]
+2507311997040 [label="", color="orange", style="filled"]
+2507311996880 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311996784 -> 2507311996880
+2507296939888 -> 2507311996880
+2507311996880 -> 2507311997040
+2507311996784 [label="", color="orange", style="filled"]
+2507296939888 [label="y", color="orange", style="filled"]
+2507311996592 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507296939840 -> 2507311996592
+2507311996688 -> 2507311996592
+2507311996592 -> 2507311996784
+2507296939840 [label="x", color="orange", style="filled"]
+2507311996688 [label="", color="orange", style="filled"]
+2507311996400 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311996016 -> 2507311996400
+2507311996304 -> 2507311996400
+2507311996400 -> 2507311996496
+2507311996016 [label="", color="orange", style="filled"]
+2507311996304 [label="", color="orange", style="filled"]
+2507311996112 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507296939888 -> 2507311996112
+2507311996208 -> 2507311996112
+2507311996112 -> 2507311996304
+2507296939888 [label="y", color="orange", style="filled"]
+2507311996208 [label="", color="orange", style="filled"]
+2507311995920 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311995344 -> 2507311995920
+2507311995824 -> 2507311995920
+2507311995920 -> 2507311996016
+2507311995344 [label="", color="orange", style="filled"]
+2507311995824 [label="", color="orange", style="filled"]
+2507311995536 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311995584 -> 2507311995536
+2507311995728 -> 2507311995536
+2507311995536 -> 2507311995824
+2507311995584 [label="", color="orange", style="filled"]
+2507311995728 [label="", color="orange", style="filled"]
+2507311995440 [label="Pow", color="lightblue", style="filled", shape="box"]
+2507296939840 -> 2507311995440
+2507311995440 -> 2507311995584
+2507296939840 [label="x", color="orange", style="filled"]
+2507311995152 [label="Sub", color="lightblue", style="filled", shape="box"]
+2507311995248 -> 2507311995152
+2507311995056 -> 2507311995152
+2507311995152 -> 2507311995344
+2507311995248 [label="", color="orange", style="filled"]
+2507311995056 [label="", color="orange", style="filled"]
+2507311994768 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507296939840 -> 2507311994768
+2507311994960 -> 2507311994768
+2507311994768 -> 2507311995056
+2507296939840 [label="x", color="orange", style="filled"]
+2507311994960 [label="", color="orange", style="filled"]
+2507311994672 [label="Pow", color="lightblue", style="filled", shape="box"]
+2507311994576 -> 2507311994672
+2507311994672 -> 2507311994816
+2507311994576 [label="", color="orange", style="filled"]
+2507311994480 [label="Sub", color="lightblue", style="filled", shape="box"]
+2507311994096 -> 2507311994480
+2507311994384 -> 2507311994480
+2507311994480 -> 2507311994576
+2507311994096 [label="", color="orange", style="filled"]
+2507311994384 [label="", color="orange", style="filled"]
+2507311994192 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507296939888 -> 2507311994192
+2507311994288 -> 2507311994192
+2507311994192 -> 2507311994384
+2507296939888 [label="y", color="orange", style="filled"]
+2507311994288 [label="", color="orange", style="filled"]
+2507311993904 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507296939840 -> 2507311993904
+2507311994000 -> 2507311993904
+2507311993904 -> 2507311994096
+2507296939840 [label="x", color="orange", style="filled"]
+2507311994000 [label="", color="orange", style="filled"]
+2507311993616 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311993520 -> 2507311993616
+2507311993712 -> 2507311993616
+2507311993616 -> 2507311993808
+2507311993520 [label="", color="orange", style="filled"]
+2507311993712 [label="", color="orange", style="filled"]
+2507311993424 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311945184 -> 2507311993424
+2507311993328 -> 2507311993424
+2507311993424 -> 2507311993520
+2507311945184 [label="", color="orange", style="filled"]
+2507311993328 [label="", color="orange", style="filled"]
+2507311993232 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311947536 -> 2507311993232
+2507311993136 -> 2507311993232
+2507311993232 -> 2507311993328
+2507311947536 [label="", color="orange", style="filled"]
+2507311993136 [label="", color="orange", style="filled"]
+2507311947728 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311992896 -> 2507311947728
+2507311993040 -> 2507311947728
+2507311947728 -> 2507311993136
+2507311992896 [label="", color="orange", style="filled"]
+2507311993040 [label="", color="orange", style="filled"]
+2507311947632 [label="Pow", color="lightblue", style="filled", shape="box"]
+2507296939888 -> 2507311947632
+2507311947632 -> 2507311992896
+2507296939888 [label="y", color="orange", style="filled"]
+2507311947440 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311946864 -> 2507311947440
+2507311947344 -> 2507311947440
+2507311947440 -> 2507311947536
+2507311946864 [label="", color="orange", style="filled"]
+2507311947344 [label="", color="orange", style="filled"]
+2507311947248 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311947152 -> 2507311947248
+2507296939888 -> 2507311947248
+2507311947248 -> 2507311947344
+2507311947152 [label="", color="orange", style="filled"]
+2507296939888 [label="y", color="orange", style="filled"]
+2507311946960 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507296939840 -> 2507311946960
+2507311947056 -> 2507311946960
+2507311946960 -> 2507311947152
+2507296939840 [label="x", color="orange", style="filled"]
+2507311947056 [label="", color="orange", style="filled"]
+2507311946768 [label="Sub", color="lightblue", style="filled", shape="box"]
+2507311946384 -> 2507311946768
+2507311946672 -> 2507311946768
+2507311946768 -> 2507311946864
+2507311946384 [label="", color="orange", style="filled"]
+2507311946672 [label="", color="orange", style="filled"]
+2507311946480 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507296939888 -> 2507311946480
+2507311946576 -> 2507311946480
+2507311946480 -> 2507311946672
+2507296939888 [label="y", color="orange", style="filled"]
+2507311946576 [label="", color="orange", style="filled"]
+2507311946288 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311945712 -> 2507311946288
+2507311946192 -> 2507311946288
+2507311946288 -> 2507311946384
+2507311945712 [label="", color="orange", style="filled"]
+2507311946192 [label="", color="orange", style="filled"]
+2507311945904 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507311945952 -> 2507311945904
+2507311946096 -> 2507311945904
+2507311945904 -> 2507311946192
+2507311945952 [label="", color="orange", style="filled"]
+2507311946096 [label="", color="orange", style="filled"]
+2507311945808 [label="Pow", color="lightblue", style="filled", shape="box"]
+2507296939840 -> 2507311945808
+2507311945808 -> 2507311945952
+2507296939840 [label="x", color="orange", style="filled"]
+2507311945520 [label="Sub", color="lightblue", style="filled", shape="box"]
+2507311945616 -> 2507311945520
+2507311945424 -> 2507311945520
+2507311945520 -> 2507311945712
+2507311945616 [label="", color="orange", style="filled"]
+2507311945424 [label="", color="orange", style="filled"]
+2507311945136 [label="Mul", color="lightblue", style="filled", shape="box"]
+2507296939840 -> 2507311945136
+2507311945328 -> 2507311945136
+2507311945136 -> 2507311945424
+2507296939840 [label="x", color="orange", style="filled"]
+2507311945328 [label="", color="orange", style="filled"]
+2507311945040 [label="Pow", color="lightblue", style="filled", shape="box"]
+2507311944944 -> 2507311945040
+2507311945040 -> 2507311945184
+2507311944944 [label="", color="orange", style="filled"]
+2507311847024 [label="Add", color="lightblue", style="filled", shape="box"]
+2507311846928 -> 2507311847024
+2507311944848 -> 2507311847024
+2507311847024 -> 2507311944944
+2507311846928 [label="", color="orange", style="filled"]
+2507311944848 [label="", color="orange", style="filled"]
+2507296939984 [label="Add", color="lightblue", style="filled", shape="box"]
+2507296939840 -> 2507296939984
+2507296939888 -> 2507296939984
+2507296939984 -> 2507311846928
+2507296939840 [label="x", color="orange", style="filled"]
+2507296939888 [label="y", color="orange", style="filled"]
+}

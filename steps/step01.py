@@ -6,6 +6,7 @@ import numpy as np
 
 from core import Variable
 from core import plot_dot_graph
+from core import sin
 
 def sphere(x, y):
     z = x ** 2 + y ** 2
@@ -22,12 +23,13 @@ def goldstein(x, y):
 
 if __name__=='__main__':
     
-    x = Variable(np.array(1.0))
-    y = Variable(np.array(1.0))
-    z = goldstein(x, y)
+    x = Variable(np.array(np.pi/4))
+    z = sin(x)
+    print(x.data)
     z.backward()
+    print(x.grad)
+    print(z.data)
     
-    x.name = 'x'
-    y.name = 'y'
-    z.name = 'z'
-    plot_dot_graph(z, verbose=False, to_file='goldstein.png')
+    # x.name = 'x'
+    # z.name = 'z'
+    # plot_dot_graph(z, verbose=False, to_file='.\goldstein.png')
