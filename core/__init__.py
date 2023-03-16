@@ -15,3 +15,4 @@ else:
     from core.core import as_array
     from core.core import as_variable
 
+from core.utils import plot_dot_graph

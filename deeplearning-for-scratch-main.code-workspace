@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": "../deeplearning-for-scratch-main"
+		},
+		{
+			"path": "../DLFromScratch2-master"
+		},
+		{
+			"path": "../numpy-100-master"
+		},
+		{
+			"name": "DeepFramework",
+			"path": "."
+		}
+	],
+	"settings": {}
+}

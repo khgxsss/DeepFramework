@@ -5,6 +5,7 @@ if '__file__' in globals(): # 현재 수행중인 코드를 담고 있는 파일
 import numpy as np
 
 from core import Variable
+from core import plot_dot_graph
 
 def sphere(x, y):
     z = x ** 2 + y ** 2
@@ -25,4 +26,8 @@ if __name__=='__main__':
     y = Variable(np.array(1.0))
     z = goldstein(x, y)
     z.backward()
-    print(x.grad, y.grad)
+    
+    x.name = 'x'
+    y.name = 'y'
+    z.name = 'z'
+    plot_dot_graph(z, verbose=False, to_file='goldstein.png')
