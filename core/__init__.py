@@ -10,6 +10,7 @@ if is_simple_core:
     from core.core_simple import sin
     from core.core_simple import square
     from core.core_simple import exp
+    from core.core_simple import numerical_diff
 else:
     from core.core import Variable
     from core.core import Function
