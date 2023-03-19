@@ -36,7 +36,7 @@ if '__file__' in globals(): # 현재 수행중인 코드를 담고 있는 파일
 
 import numpy as np
 
-from core import Variable
+from cores import Variable
 
 def sphere(x, y):
     z = x ** 2 + y ** 2

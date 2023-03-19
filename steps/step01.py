@@ -6,9 +6,9 @@ from itertools import takewhile
 from math import factorial
 import numpy as np
 
-from core import Variable
-from core import plot_dot_graph
-from core import sin
+from cores import Variable
+from cores import plot_dot_graph
+from cores import sin
 
 def doublea(x):
     return x**3 + x**2 + x
@@ -42,12 +42,62 @@ def my_sin(x, number, threshold=0.0001):
             break
     return y
 
+def rosenbrock(x0, x1):
+    y = 100*(x1-x0**2)**2 + (1-x0)**2
+    return y
+
+def four(x):
+    y = x**4 - 2*x**2
+    return y
+
+def gx2(x):
+    return 12*x**2 - 4
+
 if __name__=='__main__':
+
+    lr=0.001
+    iters = 10
+
+    x = Variable(np.array(2.0))
+    y = four(x)
+    # y.backward(create_graph=True)
+    # print(x.grad)
+
+    # gx = x.grad
+    # x.cleargrad()
+    # gx.backward()
+    # print(x.grad)
+
+    for i in range(iters):
+        print(i,x)
+        y = four(x)
+        x.cleargrad() # 두 번째 미분에서 이전 값 없애줌 (더한 값 나오지 않게)
+        y.backward(create_graph=True)
+
+        gx = x.grad
+        x.cleargrad()
+        gx.backward()
+        gx2 = x.grad
+
+        x.data -= gx.data / gx2.data
     
-    x = Variable(np.array(np.pi/4))
-    y = my_sin(x, 10000000, threshold=1e-150)
-    y.backward()
+    # x0 = Variable(np.array(0.0))
+    # x1 = Variable(np.array(2.0))
+
+    # lr=0.001
+    # iters = 1000
+    # for i in range(iters):
+    #     print(x0, x1)
     
-    x.name = 'x'
-    y.name = 'z'
-    plot_dot_graph(y, verbose=False, to_file='.\steps\goldstein.png')
+    #     y = rosenbrock(x0, x1)
+    #     x0.cleargrad()
+    #     x1.cleargrad()
+    #     y.backward()
+
+    #     x0.data -= lr * x0.grad
+    #     x1.data -= lr * x1.grad
+
+    # x.name = 'x'
+    # y.name = 'y'
+    # z.name = 'z'
+    # plot_dot_graph(z, verbose=False, to_file='.\steps\goldstein.png')
