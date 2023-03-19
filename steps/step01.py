@@ -33,23 +33,21 @@ def goldstein(x, y):
             (30 + (2*x - 3*y)**2 * (18 - 32*x + 12*x**2 + 48*y - 36*x*y + 27*y**2))
     return z
 
-def my_sin(x, number):
+def my_sin(x, number, threshold=0.0001):
     y = 0
-    for i in range(1, number):
-        y += (-1)**i * x**(2*i+1) / factorial(2*i + 1)
+    for i in range(0, number):
+        t = (-1)**i * x**(2*i+1) / factorial(2*i + 1)
+        y += t
+        if abs(t.data) < threshold:
+            break
     return y
 
 if __name__=='__main__':
     
-    x = np.sin(np.pi/4)
-    print(x)
+    x = Variable(np.array(np.pi/4))
+    y = my_sin(x, 10000000, threshold=1e-150)
+    y.backward()
     
-    a = np.pi/4
-    b = my_sin(np.pi/4, 10)
-    print(b)
-    
-    
-    
-    # x.name = 'x'
-    # z.name = 'z'
-    # plot_dot_graph(z, verbose=False, to_file='.\goldstein.png')
+    x.name = 'x'
+    y.name = 'z'
+    plot_dot_graph(y, verbose=False, to_file='.\steps\goldstein.png')
