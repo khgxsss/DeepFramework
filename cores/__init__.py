@@ -17,6 +17,6 @@ else:
     from cores.core import using_config
     from cores.core import no_grad
 
-    from cores.functions import sin, cos, tanh
+    from cores.functions import sin, cos, tanh, reshape
 
 from cores.utils import plot_dot_graph

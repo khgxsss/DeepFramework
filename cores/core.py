@@ -46,6 +46,13 @@ class Setup_Variable:
     
     #
     
+    # Tensor
+    
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return 
+    
 
 class Variable(Setup_Variable):
     def __init__(self, data, name=None): # data와 grad는 모두 넘파이 다차원 배열
