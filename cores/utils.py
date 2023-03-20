@@ -2,7 +2,7 @@ import numpy as np
 import os
 import subprocess
 
-from core import Variable
+from cores import Variable
 
 def _dot_var(v, verbose=False): # Variable 인스턴스를 건네면 그 내용을 DOT 언어로 작성된 문자열로 바꿔서 반환
     dot_var = '{} [label="{}", color="orange", style="filled"]\n'

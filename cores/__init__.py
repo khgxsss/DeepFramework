@@ -17,19 +17,6 @@ else:
     from cores.core import using_config
     from cores.core import no_grad
 
-    from cores.operators import Setup_Variable
-    from cores.operators import add
-    from cores.operators import mul
-    from cores.operators import neg
-    from cores.operators import sub
-    from cores.operators import div
-    from cores.operators import pow
-
-    from cores.functions import sin
-    from cores.functions import square
-    from cores.functions import exp
-
-    from cores.d_structures import as_array
-    from cores.d_structures import as_variable
+    from cores.functions import sin, cos, tanh
 
 from cores.utils import plot_dot_graph

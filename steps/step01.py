@@ -3,12 +3,14 @@ if '__file__' in globals(): # 현재 수행중인 코드를 담고 있는 파일
     sys.path.append(os.path.join(os.path.dirname(__file__), '..')) # 현재 파일이 위치한 디렉터리의 부모 디렉터리를 모듈 검색 경로에 추가
 
 from itertools import takewhile
-from math import factorial
 import numpy as np
+from math import factorial
+import matplotlib.pyplot as plt
 
 from cores import Variable
 from cores import plot_dot_graph
-from cores import sin
+from cores import sin, cos, tanh
+from cores import reshape
 
 def doublea(x):
     return x**3 + x**2 + x
@@ -55,49 +57,43 @@ def gx2(x):
 
 if __name__=='__main__':
 
-    lr=0.001
-    iters = 10
 
-    x = Variable(np.array(2.0))
-    y = four(x)
-    # y.backward(create_graph=True)
+    
+    x = Variable(np.array([[1,2,3],[4,5,6]]))
+    y = reshape(x, (6,))
+    y.backward(retain_grad=True)
+    print(x.grad)
+    # c = Variable(np.array([[10,20,30],[40,50,60]]))
+    # t = x + c
+    # y = sum(t)
+    # y.backward()
+    # print(y.grad)
+    # print(t.grad)
+    # print(c.grad)
     # print(x.grad)
+    
+    # lr=0.001
+    # iters = 6
+
+    # x = Variable(np.array(1.0)) # 구간 내에 숫자 채워주기
+    # y = tanh(x)
+    # y.backward(create_graph=True)
+    
+    # logs = [y.data]
+    
+    # for i in range(iters):
+    #     gx = x.grad
+    #     x.cleargrad()
+    #     gx.backward(create_graph=True)
 
     # gx = x.grad
-    # x.cleargrad()
-    # gx.backward()
-    # print(x.grad)
-
-    for i in range(iters):
-        print(i,x)
-        y = four(x)
-        x.cleargrad() # 두 번째 미분에서 이전 값 없애줌 (더한 값 나오지 않게)
-        y.backward(create_graph=True)
-
-        gx = x.grad
-        x.cleargrad()
-        gx.backward()
-        gx2 = x.grad
-
-        x.data -= gx.data / gx2.data
+    # gx.name = 'gx' + str(iters+1)
+    # plot_dot_graph(gx, verbose=False, to_file=r'steps\tanh.png')
     
-    # x0 = Variable(np.array(0.0))
-    # x1 = Variable(np.array(2.0))
-
-    # lr=0.001
-    # iters = 1000
-    # for i in range(iters):
-    #     print(x0, x1)
+    # # 그래프 그리기
     
-    #     y = rosenbrock(x0, x1)
-    #     x0.cleargrad()
-    #     x1.cleargrad()
-    #     y.backward()
-
-    #     x0.data -= lr * x0.grad
-    #     x1.data -= lr * x1.grad
-
-    # x.name = 'x'
-    # y.name = 'y'
-    # z.name = 'z'
-    # plot_dot_graph(z, verbose=False, to_file='.\steps\goldstein.png')
+    # labels = ['y=sin(x)', r"y'", r"y\''", r"y'''"]
+    # for i, v in enumerate(logs):
+    #     plt.plot(x.data, logs[i], label=labels[i])
+    # plt.legend(loc='lower right')
+    # plt.show()
