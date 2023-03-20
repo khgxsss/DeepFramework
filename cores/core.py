@@ -2,6 +2,8 @@ import contextlib
 import numpy as np
 import weakref
 
+import cores
+
 class Setup_Variable:
     def __len__(self): # 인스턴스에 대해서도 len 함수를 사용할 수 있게
         return len(self.data)
@@ -46,19 +48,11 @@ class Setup_Variable:
     
     #
     
-    # Tensor
-    
-    def reshape(self, *shape):
-        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
-            shape = shape[0]
-        return 
-    
-
 class Variable(Setup_Variable):
     def __init__(self, data, name=None): # data와 grad는 모두 넘파이 다차원 배열
         if data is not None:
             if not isinstance(data, np.ndarray): # np.ndarray인지 검출
-                raise TypeError('{}은(는) 지원하지 않습니다.'.format(type(data)))
+                raise TypeError(f'{type(data)}은(는) 지원하지 않습니다.')
         self.data = data
         self.name = None # name으로 변수들 구분. 계산 그래프 시각화 등에 사용
         self.grad = None # 미분값은 실제 역전파시 미분값을 계산하여 대입
@@ -71,6 +65,28 @@ class Variable(Setup_Variable):
     
     def cleargrad(self): # 미분값 초기화 메서드 : 같은 변수를 사용해 다른 계산을 할 경우 초기화 필요
         self.grad = None
+
+    # calculate
+
+    def sum(self, axis=None, keepdims=False):
+        return cores.sum(self, axis, keepdims)
+    
+    # Tensor
+    
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return cores.reshape(self, shape)
+    
+    def transpose(self, *axes): # 축 순서 지정 가능하게
+        if len(axes) == 0:
+            axes = None
+        elif len(axes) == 1:
+            if isinstance(axes[0], (tuple, list)) or axes[0] is None:
+                axes = axes[0]
+        return cores.transpose(self, axes)
+    
+    #
     
     @property # shape 메서드를 인스턴스 변수처럼 사용할 수 있음 : x.shape() 대신 x.shape로 호출
     def shape(self): # 모양
@@ -87,6 +103,10 @@ class Variable(Setup_Variable):
     @property
     def dtype(self): # 데이터 타입(미지정 시 flaot64 또는 int64로 초기화)
         return self.data.dtype
+    
+    @property
+    def T(self): # 전치행렬
+        return cores.transpose(self)
     
     def backward(self, retain_grad=False, create_graph=False): # retain_grad = 중간 변수 미분값 모두 None (계산 과정에서 각 함수의 출력 변수의 미분값 유지하지 않음) x.backward() 호출하면 x만 미분값 유지
         if self.grad is None:

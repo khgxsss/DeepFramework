@@ -5,12 +5,11 @@ if '__file__' in globals(): # 현재 수행중인 코드를 담고 있는 파일
 from itertools import takewhile
 import numpy as np
 from math import factorial
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from cores import Variable
 from cores import plot_dot_graph
-from cores import sin, cos, tanh
-from cores import reshape
+from cores import sin, cos, tanh, transpose, sum, matmul
 
 def doublea(x):
     return x**3 + x**2 + x
@@ -57,12 +56,22 @@ def gx2(x):
 
 if __name__=='__main__':
 
-
+    x = Variable(np.random.randn(2,3))
+    W = Variable(np.random.randn(3,4))
+    y = matmul(x, W)
+    y.backward()
+    print(x.grad.shape)
+    print(W.grad.shape)
     
-    x = Variable(np.array([[1,2,3],[4,5,6]]))
-    y = reshape(x, (6,))
-    y.backward(retain_grad=True)
-    print(x.grad)
+    # x = Variable(np.array([[1,2,3],[4,5,6]]))
+    # y = sum(x, axis=0)
+    # y.backward()
+    # print(y)
+    # print(x.grad)
+
+    # x = Variable(np.random.randn(2,3,4,5))
+    # y = x.sum(keepdims=True)
+    # print(y.shape)
     # c = Variable(np.array([[10,20,30],[40,50,60]]))
     # t = x + c
     # y = sum(t)
