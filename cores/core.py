@@ -153,6 +153,9 @@ class Variable(Setup_Variable4):
                 for y in f.outputs:
                     y().grad = None # y는 약한 참조 => 참조 카운트가 0이 되어 미분값 데이터가 메모리에서 삭제됨
 
+class Parameter(Variable): # Variable과 기능은 같지만 Parameter 인스턴스(매개변수)만을 담는 구조
+    pass
+
 class Function: # Define-by-Run 구조 구현 : Linked List
     def __call__(self, *inputs) -> any: # 파라미터를 모아서 받음 (*)
         inputs = [as_variable(x) for x in inputs] # 모두 variable 인스턴스로 변환
