@@ -1,6 +1,6 @@
 import unittest
 
-from step01 import *
+from cores import square
 
 class SquareTest(unittest.TestCase):
     def test_forward(self):

@@ -20,11 +20,22 @@ class Cos(Function):
 
 class Exp(Function):
     def forward(self, x):
-        return np.exp(x)
-    
+        y = np.exp(x)
+        return y
+
+    def backward(self, gy):
+        y = self.outputs[0]()  # weakref
+        gx = gy * y
+        return gx
+
+class Log(Function):
+    def forward(self, x):
+        y = np.log(x)
+        return y
+
     def backward(self, gy):
         x, = self.inputs
-        gx = np.exp(x) * gy
+        gx = gy / x
         return gx
 
 class Sin(Function):
@@ -34,21 +45,6 @@ class Sin(Function):
     def backward(self, gy):
         x, = self.inputs # 순전파 시 저장된 값
         return gy * cos(x) # gy = L, np.cos(x) = sindx
-
-class Sum(Function):
-    def __init__(self, axis, keepdims):
-        self.axis = axis
-        self.keepdims = keepdims
-
-    def forward(self, x):
-        self.x_shape = x.shape
-        y = x.sum(axis=self.axis, keepdims=self.keepdims)
-        return y
-    
-    def backward(self, gy):
-        gyr = reshape_sum_backward(gy, self.x_shape, self.axis, self.keepdims)
-        gx = broadcast_to(gyr, self.x_shape)
-        return gx
 
 class Square(Function):
     def __init__(self) -> None:
@@ -80,18 +76,81 @@ def cos(x):
 def exp(x):
     return Exp()(x)
 
+def log(x):
+    return Log()(x)
+
 def sin(x):
     return Sin()(x)
 
 def square(x):
     return Square()(x)
 
-def sum(x, axis=None, keepdims=False):
-    return Sum(axis, keepdims)(x)
-
 def tanh(x):
     return Tanh()(x)
     
+#
+
+# Loss
+
+class MeanSquaredError(Function):
+    def forward(self, x0, x1):
+        diff = x0 - x1
+        y = (diff ** 2).sum() / len(diff)
+        return y
+    
+    def backward(self, gy):
+        x0, x1 = self.inputs
+        diff = x0 - x1
+        gx0 = gy * diff * (2. /len(diff))
+        gx1 = -gx0
+        return gx0, gx1
+
+#
+
+# Loss funcs
+
+def mean_squared_error(x0, x1):
+    return MeanSquaredError()(x0, x1)
+
+#
+
+# Affine Transformation
+
+class Linear(Function):
+    def forward(self, x, W, b):
+        y = x.dot(W)
+        if b is not None:
+            y += b
+        return y
+
+    def backward(self, gy):
+        x, W, b = self.inputs
+        gb = None if b.data is None else sum_to(gy, b.shape)
+        gx = matmul(gy, W.T)
+        gW = matmul(x.T, gy)
+        return gx, gW, gb
+    
+class Sigmoid(Function):
+    def forward(self, x):
+        # y = 1 / (1 + exp(-x))
+        y = x.tanh(x*0.5)*0.5+0.5 # tanh 쌍곡선으로 대체
+        return y
+    
+    def backward(self, gy):
+        y, = self.outputs
+        y = y()
+        return gy*y*(1-y)
+
+#
+
+#Affine funcs
+
+def linear(x, W, b=None):
+    return Linear()(x, W, b)
+
+def sigmoid(x):
+    return Sigmoid()(x)
+
 #
 
 # Tensor
@@ -117,8 +176,8 @@ class MatMul(Function):
     def backward(self, gy):
         x, W = self.inputs
         gx = matmul(gy, W.T)
-        gy = matmul(x.T, gy)
-        return gx, gy
+        gW = matmul(x.T, gy)
+        return gx, gW
 
 class Reshape(Function):
     def __init__(self, shape):
@@ -131,6 +190,21 @@ class Reshape(Function):
     
     def backward(self, gy):
         return reshape(gy, self.x_shape)
+    
+class Sum(Function):
+    def __init__(self, axis, keepdims):
+        self.axis = axis
+        self.keepdims = keepdims
+
+    def forward(self, x):
+        self.x_shape = x.shape
+        y = x.sum(axis=self.axis, keepdims=self.keepdims)
+        return y
+    
+    def backward(self, gy):
+        gyr = reshape_sum_backward(gy, self.x_shape, self.axis, self.keepdims)
+        gx = broadcast_to(gyr, self.x_shape)
+        return gx
 
 class SumTo(Function): # broadcast_to 와 상호의존적
     def __init__(self, shape):
@@ -178,10 +252,13 @@ def reshape(x, shape):
         return as_variable(x)
     return Reshape(shape)(x)
 
+def sum(x, axis=None, keepdims=False):
+    return Sum(axis, keepdims)(x)
+
 def sum_to(x, shape):
     if x.shape == shape:
         return as_variable(x)
     return SumTo(shape)(x)
 
-def transpose(x):
-    return Transpose()(x)
+def transpose(x, axes=None):
+    return Transpose(axes)(x)

@@ -4,17 +4,9 @@ import weakref
 
 import cores
 
-class Setup_Variable:
-    def __len__(self): # 인스턴스에 대해서도 len 함수를 사용할 수 있게
-        return len(self.data)
+class Setup_Variable1:
     
-    def __repr__(self) -> str: # variable print 했을 때 나올 수 있게
-        if self.data is None:
-            return 'variable(None)'
-        p = str(self.data).replace('\n', 'n' + ' '*9)
-        return 'variable(' +p+')'
-    
-    # 연산자 오버로딩
+    # Variable 연산자 오버로딩
     
     def __mul__(self, other): # multiply 곱셈 오버로드 
         return mul(self, other)
@@ -47,47 +39,18 @@ class Setup_Variable:
         return pow(self, other)
     
     #
-    
-class Variable(Setup_Variable):
-    def __init__(self, data, name=None): # data와 grad는 모두 넘파이 다차원 배열
-        if data is not None:
-            if not isinstance(data, np.ndarray): # np.ndarray인지 검출
-                raise TypeError(f'{type(data)}은(는) 지원하지 않습니다.')
-        self.data = data
-        self.name = None # name으로 변수들 구분. 계산 그래프 시각화 등에 사용
-        self.grad = None # 미분값은 실제 역전파시 미분값을 계산하여 대입
-        self.creator = None # 변수를 만들어준 함수 저장
-        self.generation = 0 # 세대 저장(부모노드와 자식노드간 계산 우선순위 설정)
-    
-    def set_creator(self, func):
-        self.creator = func # creator 함수 저장
-        self.generation = func.generation+1 # 세대를 기록한다(부모 세대 + 1)
-    
-    def cleargrad(self): # 미분값 초기화 메서드 : 같은 변수를 사용해 다른 계산을 할 경우 초기화 필요
-        self.grad = None
 
-    # calculate
+class Setup_Variable2(Setup_Variable1):
+    def __len__(self): # 인스턴스에 대해서도 len 함수를 사용할 수 있게
+        return len(self.data)
+    
+    def __repr__(self) -> str: # variable print 했을 때 나올 수 있게
+        if self.data is None:
+            return 'variable(None)'
+        p = str(self.data).replace('\n', '\n' + ' '*9)
+        return 'variable(' +p+')'
 
-    def sum(self, axis=None, keepdims=False):
-        return cores.sum(self, axis, keepdims)
-    
-    # Tensor
-    
-    def reshape(self, *shape):
-        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
-            shape = shape[0]
-        return cores.reshape(self, shape)
-    
-    def transpose(self, *axes): # 축 순서 지정 가능하게
-        if len(axes) == 0:
-            axes = None
-        elif len(axes) == 1:
-            if isinstance(axes[0], (tuple, list)) or axes[0] is None:
-                axes = axes[0]
-        return cores.transpose(self, axes)
-    
-    #
-    
+class Setup_Variable3(Setup_Variable2):
     @property # shape 메서드를 인스턴스 변수처럼 사용할 수 있음 : x.shape() 대신 x.shape로 호출
     def shape(self): # 모양
         return self.data.shape
@@ -106,8 +69,49 @@ class Variable(Setup_Variable):
     
     @property
     def T(self): # 전치행렬
-        return cores.transpose(self)
+        return cores.functions.transpose(self)
     
+class Setup_Variable4(Setup_Variable3):
+    # Tensor
+    
+    def reshape(self, *shape):
+        if len(shape) == 1 and isinstance(shape[0], (tuple, list)):
+            shape = shape[0]
+        return cores.functions.reshape(self, shape)
+    
+    def sum(self, axis=None, keepdims=False):
+        return cores.functions.sum(self, axis, keepdims)
+    
+    def transpose(self, *axes): # 축 순서 지정 가능하게
+        if len(axes) == 0:
+            axes = None
+        elif len(axes) == 1:
+            if isinstance(axes[0], (tuple, list)) or axes[0] is None:
+                axes = axes[0]
+        return cores.functions.transpose(self, axes)
+    
+    #
+    
+class Variable(Setup_Variable4):
+    __array_prioty__ = 200
+    def __init__(self, data, name=None): # data와 grad는 모두 넘파이 다차원 배열
+        if data is not None:
+            if not isinstance(data, np.ndarray): # np.ndarray인지 검출
+                raise TypeError(f'{type(data)}은(는) 지원하지 않습니다.')
+            
+        self.data = data
+        self.name = name # name으로 변수들 구분. 계산 그래프 시각화 등에 사용
+        self.grad = None # 미분값은 실제 역전파시 미분값을 계산하여 대입
+        self.creator = None # 변수를 만들어준 함수 저장
+        self.generation = 0 # 세대 저장(부모노드와 자식노드간 계산 우선순위 설정)
+    
+    def set_creator(self, func):
+        self.creator = func # creator 함수 저장
+        self.generation = func.generation+1 # 세대를 기록한다(부모 세대 + 1)
+    
+    def cleargrad(self): # 미분값 초기화 메서드 : 같은 변수를 사용해 다른 계산을 할 경우 초기화 필요
+        self.grad = None
+
     def backward(self, retain_grad=False, create_graph=False): # retain_grad = 중간 변수 미분값 모두 None (계산 과정에서 각 함수의 출력 변수의 미분값 유지하지 않음) x.backward() 호출하면 x만 미분값 유지
         if self.grad is None:
             self.grad = Variable(np.ones_like(self.data)) # self.data와 형상과 데이터 타입이 같은 ndarray instance 생성 : 모든 요소를 1로 채워서 돌려줌 ( 스칼라이면 스칼라 )
@@ -179,11 +183,15 @@ class Function: # Define-by-Run 구조 구현 : Linked List
 
 class Add(Function):
     def forward(self, x0, x1):
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
         y = x0 + x1
         return y # (y,) == return y, 튜플로 출력
     
     def backward(self, gy):
         gx0, gx1 = gy, gy
+        if self.x0_shape != self.x1_shape:  # for broadcast
+            gx0 = cores.functions.sum_to(gx0, self.x0_shape)
+            gx1 = cores.functions.sum_to(gx1, self.x1_shape)
         return gx0, gx1
 
 class Mul(Function):
@@ -191,8 +199,13 @@ class Mul(Function):
         return x0*x1
     
     def backward(self, gy):
-        x0, x1 = self.inputs # simple 버전에서는 ndarray instance 꺼내서 썼으나, 이제는 인스턴스 바로사용
-        return x1*gy, x0*gy
+        x0, x1 = self.inputs
+        gx0 = gy * x1
+        gx1 = gy * x0
+        if x0.shape != x1.shape:  # for broadcast
+            gx0 = cores.functions.sum_to(gx0, x0.shape)
+            gx1 = cores.functions.sum_to(gx1, x1.shape)
+        return gx0, gx1
 
 class Neg(Function):
     def forward(self, x):
@@ -203,11 +216,16 @@ class Neg(Function):
 
 class Sub(Function):
     def forward(self, x0, x1):
-        return x0 - x1
-    
+        self.x0_shape, self.x1_shape = x0.shape, x1.shape
+        y = x0 - x1
+        return y
+
     def backward(self, gy):
         gx0 = gy
         gx1 = -gy
+        if self.x0_shape != self.x1_shape:  # for broadcast
+            gx0 = cores.functions.sum_to(gx0, self.x0_shape)
+            gx1 = cores.functions.sum_to(gx1, self.x1_shape)
         return gx0, gx1
     
 class Div(Function):
@@ -218,6 +236,9 @@ class Div(Function):
         x0, x1 = self.inputs
         gx0 = gy/x1
         gx1 = gy * (-x0 / x1 ** 2)
+        if x0.shape != x1.shape:  # for broadcast
+            gx0 = cores.functions.sum_to(gx0, x0.shape)
+            gx1 = cores.functions.sum_to(gx1, x1.shape)
         return gx0, gx1
 
 class Pow(Function):
@@ -249,11 +270,11 @@ def neg(x):
     return Neg()(x)
 
 def sub(x0, x1):
-    x0, x1 = as_array(x0), as_array(x1)
+    x1 = as_array(x1)
     return Sub()(x0, x1)
 
 def div(x0, x1):
-    x0, x1 = as_array(x0), as_array(x1)
+    x1 = as_array(x1)
     return Div()(x0, x1)
 
 def pow(x, c):

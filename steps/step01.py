@@ -57,11 +57,11 @@ def gx2(x):
 if __name__=='__main__':
 
     x = Variable(np.random.randn(2,3))
-    W = Variable(np.random.randn(3,4))
+    W = Variable(np.random.randn(3,3))
     y = matmul(x, W)
     y.backward()
     print(x.grad.shape)
-    print(W.grad.shape)
+    print(W)
     
     # x = Variable(np.array([[1,2,3],[4,5,6]]))
     # y = sum(x, axis=0)

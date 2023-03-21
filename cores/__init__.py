@@ -18,6 +18,5 @@ else:
     from cores.core import no_grad
 
     from cores.functions import sin, cos, tanh, sum
-    from cores.functions import matmul, reshape, transpose
 
 from cores.utils import plot_dot_graph
