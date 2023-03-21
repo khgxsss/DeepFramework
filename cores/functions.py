@@ -62,8 +62,7 @@ class Tanh(Function):
         return np.tanh(x)
     
     def backward(self, gy):
-        y, = self.outputs # tanh(x)의 미분값은 1-y^2
-        y = y()
+        y = self.outputs[0]() # tanh(x)의 미분값은 1-y^2, weakref
         return gy * (1 - y * y)
 
 #
@@ -132,8 +131,8 @@ class Linear(Function):
     
 class Sigmoid(Function):
     def forward(self, x):
-        # y = 1 / (1 + exp(-x))
-        y = x.tanh(x*0.5)*0.5+0.5 # tanh 쌍곡선으로 대체
+        # y = 1 / (1 + np.exp(-x))
+        y = np.tanh(x*0.5)*0.5+0.5 # tanh 쌍곡선으로 대체
         return y
     
     def backward(self, gy):

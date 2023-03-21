@@ -5,9 +5,8 @@ import weakref
 import cores
 
 class Setup_Variable1:
-    
     # Variable 연산자 오버로딩
-    
+
     def __mul__(self, other): # multiply 곱셈 오버로드 
         return mul(self, other)
 
@@ -94,6 +93,7 @@ class Setup_Variable4(Setup_Variable3):
     
 class Variable(Setup_Variable4):
     __array_prioty__ = 200
+
     def __init__(self, data, name=None): # data와 grad는 모두 넘파이 다차원 배열
         if data is not None:
             if not isinstance(data, np.ndarray): # np.ndarray인지 검출
@@ -158,7 +158,7 @@ class Function: # Define-by-Run 구조 구현 : Linked List
         inputs = [as_variable(x) for x in inputs] # 모두 variable 인스턴스로 변환
 
         xs = [x.data for x in inputs] # inputs 리스트의 각 원소 x에 대해 x.data를 꺼내고 꺼낸 원소들로 새로운 리스트 작성
-        ys = self.forward(*xs)# 구체적 계산 | xs = [x0, x1] 일때 self.forward(*xs)를 하면 self.forward(x0, x1)과 동일한 동작
+        ys = self.forward(*xs) # 구체적 계산 | xs = [x0, x1] 일때 self.forward(*xs)를 하면 self.forward(x0, x1)과 동일한 동작
         if not isinstance(ys, tuple):
             ys = (ys,)
         outputs = [Variable(as_array(y)) for y in ys] # output이 scalar 여도 numpy.float 형식이 아닌 ndarray로 나오도록 변환
@@ -259,22 +259,22 @@ class Pow(Function):
 # 연산자 오버로딩 함수
 
 def add(x0, x1):
-    x1 = as_array(x1)
+    x0, x1 = as_array(x0), as_array(x1)
     return Add()(x0, x1)
 
 def mul(x0, x1):
-    x1 = as_array(x1)
+    x0, x1 = as_array(x0), as_array(x1)
     return Mul()(x0, x1)
 
 def neg(x):
     return Neg()(x)
 
 def sub(x0, x1):
-    x1 = as_array(x1)
+    x0, x1 = as_array(x0), as_array(x1)
     return Sub()(x0, x1)
 
 def div(x0, x1):
-    x1 = as_array(x1)
+    x0, x1 = as_array(x0), as_array(x1)
     return Div()(x0, x1)
 
 def pow(x, c):
