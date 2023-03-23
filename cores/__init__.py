@@ -19,10 +19,12 @@ else:
     from cores.core import no_grad
 
     from cores.functions import sin, cos, tanh, sum
+    from cores.functions import get_item
 
     from cores.layers import Layer
     from cores.layers import Linear
 
+    from cores.models import MLP
     from cores.models import Model
 
 from cores.utils import plot_dot_graph

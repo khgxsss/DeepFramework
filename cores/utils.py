@@ -1,8 +1,7 @@
-import numpy as np
 import os
 import subprocess
 
-from cores import Variable
+import cores.cuda
 
 def _dot_func(f): # Core 함수를 DOT 언어로 변환
     dot_func = '{} [label="{}", color="lightblue", style="filled", shape="box"]\n'
@@ -68,16 +67,37 @@ def plot_dot_graph(output, verbose=True, to_file='graph.png'):
 
 # Utility functions for numpy
 
+def logsumexp(x, axis=1):
+    xp = cores.cuda.get_array_module(x)
+    m = x.max(axis=axis, keepdims=True)
+    y = x - m
+    xp.exp(y, out=y)
+    s = y.sum(axis=axis, keepdims=True)
+    xp.log(s, out=s)
+    m += s
+    return m
+
+def max_backward_shape(x, axis):
+    if axis is None:
+        axis = range(x.ndim)
+    elif isinstance(axis, int):
+        axis = (axis,)
+    else:
+        axis = axis
+
+    shape = [s if ax not in axis else 1 for ax, s in enumerate(x.shape)]
+    return shape
+
 def reshape_sum_backward(gy, x_shape, axis, keepdims):
     """Reshape gradient appropriately for cores.functions.sum's backward.
     Args:
-        gy (cores.Variable): Gradient variable from the output by backprop.
+        gy (cores.core.Variable): Gradient variable from the output by backprop.
         x_shape (tuple): Shape used at sum function's forward.
         axis (None or int or tuple of ints): Axis used at sum function's
             forward.
         keepdims (bool): Keepdims used at sum function's forward.
     Returns:
-        cores.Variable: Gradient variable which is reshaped appropriately
+        cores.core.Variable: Gradient variable which is reshaped appropriately
     """
     ndim = len(x_shape)
     tupled_axis = axis
@@ -115,10 +135,4 @@ def sum_to(x, shape):
         y = y.squeeze(lead_axis)
     return y
 
-
-if __name__=='__main__':
-    x = Variable(np.random.randn(2,3))
-    y = Variable(np.random.randn(2,3))
-    x.name= 'x'
-    print(_dot_var(x))
-    print(_dot_var(x, verbose=True))
+#

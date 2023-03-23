@@ -2,7 +2,7 @@ import contextlib
 import numpy as np
 import weakref
 
-import cores
+import cores.functions
 
 class Setup_Variable1:
     # Variable 연산자 오버로딩
@@ -42,6 +42,9 @@ class Setup_Variable1:
 class Setup_Variable2(Setup_Variable1):
     def __len__(self): # 인스턴스에 대해서도 len 함수를 사용할 수 있게
         return len(self.data)
+    
+    def __getitem__(self, indices):
+        return cores.functions.get_item(self, indices)
     
     def __repr__(self) -> str: # variable print 했을 때 나올 수 있게
         if self.data is None:
@@ -317,10 +320,3 @@ def as_variable(obj): # 다른 형식 인스턴스도 Variable로 통일해서 �
     return Variable(obj)
 
 #
-
-if __name__ == "__main__":
-    # testcode
-    x = Variable(np.array(2.0))
-    x1 = 3
-    y1 = x**3
-    print(y1)

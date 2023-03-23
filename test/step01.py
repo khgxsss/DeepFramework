@@ -1,4 +1,4 @@
-if '__file__' in globals(): # 현재 수행중인 코드를 담고 있는 파일이 위치한 path 가 전역 변수들의 집합 내에 있는가
+if '__file__' in globals(): # 현재 수행중인 코드를 담고 있는 파일이 위치한 path 가 전역 변수들의 집합 내에 있는가아이티스쿨wjdq
     import os, sys
     sys.path.append(os.path.join(os.path.dirname(__file__), '..')) # 현재 파일이 위치한 디렉터리의 부모 디렉터리를 모듈 검색 경로에 추가
 
@@ -9,7 +9,7 @@ from math import factorial
 
 from cores import Variable
 from cores import plot_dot_graph
-from cores import sin, cos, tanh, transpose, sum, matmul
+import cores.functions as F
 
 def doublea(x):
     return x**3 + x**2 + x
@@ -56,12 +56,17 @@ def gx2(x):
 
 if __name__=='__main__':
 
-    x = Variable(np.random.randn(2,3))
-    W = Variable(np.random.randn(3,3))
-    y = matmul(x, W)
-    y.backward()
-    print(x.grad.shape)
-    print(W)
+    x = Variable(np.array([[1,2,3],[4,5,6]]))
+    indices = np.array([0,0,1])
+    y = x[:,2]
+    print(y)
+    
+    # x = Variable(np.random.randn(2,3))
+    # W = Variable(np.random.randn(3,3))
+    # y = matmul(x, W)
+    # y.backward()
+    # print(x.grad.shape)
+    # print(W)
     
     # x = Variable(np.array([[1,2,3],[4,5,6]]))
     # y = sum(x, axis=0)
