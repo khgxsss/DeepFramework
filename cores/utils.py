@@ -1,5 +1,7 @@
+import numpy as np
 import os
 import subprocess
+import urllib
 
 from cores import cuda
 from cores.core import Variable, as_variable
