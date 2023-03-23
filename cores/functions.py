@@ -1,14 +1,12 @@
 import numpy as np
 
-import cores.core
-import cores.cuda
-import cores.utils
-
-
+from cores import cuda
+from cores.core import Function, as_variable
+from cores.utils import logsumexp, reshape_sum_backward, sum_to_u
 
 # 계산용 추가 정의 클래스
 
-class Cos(cores.core.Function):
+class Cos(Function):
     def forward(self, x):
         y = np.cos(x)
         return y
@@ -18,7 +16,7 @@ class Cos(cores.core.Function):
         gx = gy * -sin(x)
         return gx
 
-class Exp(cores.core.Function):
+class Exp(Function):
     def forward(self, x):
         y = np.exp(x)
         return y
@@ -28,7 +26,7 @@ class Exp(cores.core.Function):
         gx = gy * y
         return gx
 
-class Log(cores.core.Function):
+class Log(Function):
     def forward(self, x):
         y = np.log(x)
         return y
@@ -38,7 +36,7 @@ class Log(cores.core.Function):
         gx = gy / x
         return gx
 
-class Sin(cores.core.Function):
+class Sin(Function):
     def forward(self, x):
         return np.sin(x)
         
@@ -46,7 +44,7 @@ class Sin(cores.core.Function):
         x, = self.inputs # 순전파 시 저장된 값
         return gy * cos(x) # gy = L, np.cos(x) = sindx
     
-class Tanh(cores.core.Function):
+class Tanh(Function):
     def forward(self, x):
         return np.tanh(x)
     
@@ -75,95 +73,9 @@ def tanh(x):
     
 #
 
-# Loss
-
-class LogSoftmax(cores.core.Function):
-    def __init__(self, axis=1):
-        self.axis = axis
-
-    def forward(self, x):
-        log_z = cores.utils.logsumexp(x, self.axis)
-        y = x - log_z
-        return y
-
-    def backward(self, gy):
-        y = self.outputs[0]()
-        gx = gy - exp(y) * gy.sum(axis=self.axis, keepdims=True)
-        return gx
-
-class MeanSquaredError(cores.core.Function):
-    def forward(self, x0, x1):
-        diff = x0 - x1
-        y = (diff ** 2).sum() / len(diff)
-        return y
-    
-    def backward(self, gy):
-        x0, x1 = self.inputs
-        diff = x0 - x1
-        gx0 = gy * diff * (2. /len(diff))
-        gx1 = -gx0
-        return gx0, gx1
-
-class Softmax(cores.core.Function):
-    def __init__(self, axis=1):
-        self.axis = axis
-
-    def forward(self, x):
-        xp = cores.cuda.get_array_module(x)
-        y = x - x.max(axis=self.axis, keepdims=True)
-        y = xp.exp(y)
-        y /= y.sum(axis=self.axis, keepdims=True)
-        return y
-
-    def backward(self, gy):
-        y = self.outputs[0]()
-        gx = y * gy
-        sumdx = gx.sum(axis=self.axis, keepdims=True)
-        gx -= y * sumdx
-        return gx
-    
-class SoftmaxCrossEntropy(cores.core.Function):
-    def forward(self, x, t):
-        N = x.shape[0]
-        log_z = cores.utils.logsumexp(x, axis=1)
-        log_p = x - log_z
-        log_p = log_p[np.arange(N), t.ravel()]
-        y = -log_p.sum() / np.float32(N)
-        return y
-
-    def backward(self, gy):
-        x, t = self.inputs
-        N, CLS_NUM = x.shape
-
-        gy *= 1/N
-        y = softmax(x)
-        # convert to one-hot
-        xp = cores.cuda.get_array_module(t.data)
-        t_onehot = xp.eye(CLS_NUM, dtype=t.dtype)[t.data]
-        y = (y - t_onehot) * gy
-        return y
-
-#
-
-# Loss funcs
-
-def log_softmax(x, axis=1):
-    return LogSoftmax(axis)(x)
-
-def mean_squared_error(x0, x1):
-    return MeanSquaredError()(x0, x1)
-
-def softmax(x, axis=1):
-    return Softmax(axis)(x)
-
-def softmax_cross_entropy(x, t):
-    return SoftmaxCrossEntropy()(x, t)
-
-#
-
 # Affine Transformation
 
-class Linear(cores.core.Function):
+class Linear(Function):
     def forward(self, x, W, b):
         y = x.dot(W)
         if b is not None:
@@ -177,7 +89,7 @@ class Linear(cores.core.Function):
         gW = matmul(x.T, gy)
         return gx, gW, gb
     
-class Sigmoid(cores.core.Function):
+class Sigmoid(Function):
     def forward(self, x):
         # y = 1 / (1 + np.exp(-x))
         y = np.tanh(x*0.5)*0.5+0.5 # tanh 쌍곡선으로 대체
@@ -200,15 +112,101 @@ def sigmoid(x):
 
 #
 
+# Loss
+
+class LogSoftmax(Function):
+    def __init__(self, axis=1):
+        self.axis = axis
+
+    def forward(self, x):
+        log_z = logsumexp(x, self.axis)
+        y = x - log_z
+        return y
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = gy - exp(y) * gy.sum(axis=self.axis, keepdims=True)
+        return gx
+
+class MeanSquaredError(Function):
+    def forward(self, x0, x1):
+        diff = x0 - x1
+        y = (diff ** 2).sum() / len(diff)
+        return y
+    
+    def backward(self, gy):
+        x0, x1 = self.inputs
+        diff = x0 - x1
+        gx0 = gy * diff * (2. /len(diff))
+        gx1 = -gx0
+        return gx0, gx1
+
+class Softmax(Function):
+    def __init__(self, axis=1):
+        self.axis = axis
+
+    def forward(self, x):
+        xp = cuda.get_array_module(x)
+        y = x - x.max(axis=self.axis, keepdims=True)
+        y = xp.exp(y)
+        y /= y.sum(axis=self.axis, keepdims=True)
+        return y
+
+    def backward(self, gy):
+        y = self.outputs[0]()
+        gx = y * gy
+        sumdx = gx.sum(axis=self.axis, keepdims=True)
+        gx -= y * sumdx
+        return gx
+    
+class SoftmaxCrossEntropy(Function):
+    def forward(self, x, t):
+        N = x.shape[0]
+        log_z = logsumexp(x, axis=1)
+        log_p = x - log_z
+        log_p = log_p[np.arange(N), t.ravel()]
+        y = -log_p.sum() / np.float32(N)
+        return y
+
+    def backward(self, gy):
+        x, t = self.inputs
+        N, CLS_NUM = x.shape
+
+        gy *= 1/N
+        y = softmax(x)
+        # convert to one-hot
+        xp = cuda.get_array_module(t.data)
+        t_onehot = xp.eye(CLS_NUM, dtype=t.dtype)[t.data]
+        y = (y - t_onehot) * gy
+        return y
+
+#
+
+# Loss funcs
+
+def log_softmax(x, axis=1):
+    return LogSoftmax(axis)(x)
+
+def mean_squared_error(x0, x1):
+    return MeanSquaredError()(x0, x1)
+
+def softmax(x, axis=1):
+    return Softmax(axis)(x)
+
+def softmax_cross_entropy(x, t):
+    return SoftmaxCrossEntropy()(x, t)
+
+#
+
 # Tensor
 
-class BroadcastTo(cores.core.Function): # sum_to와 상호의존적
+class BroadcastTo(Function): # sum_to와 상호의존적
     def __init__(self, shape):
         self.shape = shape
 
     def forward(self, x):
         self.x_shape = x.shape
-        xp = cores.cuda.get_array_module(x)
+        xp = cuda.get_array_module(x)
         y = xp.broadcast_to(x, self.shape)
         return y
 
@@ -216,7 +214,7 @@ class BroadcastTo(cores.core.Function): # sum_to와 상호의존적
         gx = sum_to(gy, self.x_shape)
         return gx
     
-class MatMul(cores.core.Function):
+class MatMul(Function):
     def forward(self, x, W):
         y = x.dot(W)
         return y
@@ -227,7 +225,7 @@ class MatMul(cores.core.Function):
         gW = matmul(x.T, gy)
         return gx, gW
 
-class Reshape(cores.core.Function):
+class Reshape(Function):
     def __init__(self, shape):
         self.shape = shape
     
@@ -239,7 +237,7 @@ class Reshape(cores.core.Function):
     def backward(self, gy):
         return reshape(gy, self.x_shape)
     
-class Sum(cores.core.Function):
+class Sum(Function):
     def __init__(self, axis, keepdims):
         self.axis = axis
         self.keepdims = keepdims
@@ -250,24 +248,24 @@ class Sum(cores.core.Function):
         return y
     
     def backward(self, gy):
-        gyr = cores.utils.reshape_sum_backward(gy, self.x_shape, self.axis, self.keepdims)
+        gyr = reshape_sum_backward(gy, self.x_shape, self.axis, self.keepdims)
         gx = broadcast_to(gyr, self.x_shape)
         return gx
 
-class SumTo(cores.core.Function): # broadcast_to 와 상호의존적
+class SumTo(Function): # broadcast_to 와 상호의존적
     def __init__(self, shape):
         self.shape = shape
     
     def forward(self, x):
         self.x_shape = x.shape
-        y = cores.utils.sum_to(x, self.shape)
+        y = sum_to_u(x, self.shape)
         return y
     
     def backward(self, gy):
         gx = broadcast_to(gy, self.x_shape)
         return gx
 
-class Transpose(cores.core.Function):
+class Transpose(Function):
     def __init__(self, axes=None):
         self.axes = axes
 
@@ -289,7 +287,7 @@ class Transpose(cores.core.Function):
 
 def broadcast_to(x, shape):
     if x.shape == shape:
-        return cores.core.as_variable(x)
+        return as_variable(x)
     return BroadcastTo(shape)(x)
 
 def matmul(x, W):
@@ -297,7 +295,7 @@ def matmul(x, W):
 
 def reshape(x, shape):
     if x.shape == shape: # 아무 일도 하지 않고 x를 그대로 돌려줌 (Variable instance 보장)
-        return cores.core.as_variable(x)
+        return as_variable(x)
     return Reshape(shape)(x)
 
 def sum(x, axis=None, keepdims=False):
@@ -305,7 +303,7 @@ def sum(x, axis=None, keepdims=False):
 
 def sum_to(x, shape):
     if x.shape == shape:
-        return cores.core.as_variable(x)
+        return as_variable(x)
     return SumTo(shape)(x)
 
 def transpose(x, axes=None):
@@ -313,7 +311,7 @@ def transpose(x, axes=None):
 
 # slice
 
-class GetItem(cores.core.Function):
+class GetItem(Function):
     def __init__(self, slices):
         self.slices = slices
 
@@ -326,13 +324,13 @@ class GetItem(cores.core.Function):
         f = GetItemGrad(self.slices, x.shape)
         return f(gy)
 
-class GetItemGrad(cores.core.Function):
+class GetItemGrad(Function):
     def __init__(self, slices, in_shape):
         self.slices = slices
         self.in_shape = in_shape
 
     def forward(self, gy):
-        xp = cores.cuda.get_array_module(gy)
+        xp = cuda.get_array_module(gy)
         gx = xp.zeros(self.in_shape, dtype=gy.dtype)
 
         if xp is np:

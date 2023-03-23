@@ -4,7 +4,7 @@ if '__file__' in globals():
 import numpy as np
 import matplotlib.pyplot as plt
 from cores import optimizers
-from cores import Model
+from cores.models import Model
 from cores.models import MLP
 import cores.functions as F
 import cores.layers as L

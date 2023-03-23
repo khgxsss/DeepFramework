@@ -3,7 +3,7 @@ if '__file__' in globals():
     sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
 import matplotlib.pyplot as plt
-from cores import Model
+from cores.models import Model
 import cores.functions as F
 import cores.layers as L
 

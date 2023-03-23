@@ -12,19 +12,7 @@ if is_simple_core:
     from cores.core_simple import exp
     from cores.core_simple import numerical_diff
 else:
-    from cores.core import Variable
-    from cores.core import Parameter
-    from cores.core import Function
-    from cores.core import using_config
-    from cores.core import no_grad
-
-    from cores.functions import sin, cos, tanh, sum
-    from cores.functions import get_item
-
-    from cores.layers import Layer
-    from cores.layers import Linear
-
-    from cores.models import MLP
-    from cores.models import Model
-
+    from cores.core import Function, Parameter, Variable
+    from cores.core import as_array, as_variable, using_config
+    
 from cores.utils import plot_dot_graph

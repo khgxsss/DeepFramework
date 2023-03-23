@@ -1,8 +1,8 @@
 import numpy as np
 import weakref
 
-from cores.core import Parameter
-import cores.functions as F
+from cores import Parameter
+from cores.functions import linear
 
 class Layer: # Function과 마찬가지로 변수를 변환하지만 매개변수를 유지하고 이를 사용하여 변환을 하는 클래스
     def __init__(self):
@@ -66,5 +66,5 @@ class Linear(Layer):
             self.in_size = x.shape[1]
             self._init_W()
         
-        y = F.linear(x, self.W, self.b)
+        y = linear(x, self.W, self.b)
         return y

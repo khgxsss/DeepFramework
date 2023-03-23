@@ -2,10 +2,10 @@ import contextlib
 import numpy as np
 import weakref
 
-import cores.functions
+import cores
 
-class Setup_Variable1:
-    # Variable 연산자 오버로딩
+class VariableOverloading:
+    #
 
     def __mul__(self, other): # multiply 곱셈 오버로드 
         return mul(self, other)
@@ -38,12 +38,13 @@ class Setup_Variable1:
         return pow(self, other)
     
     #
-
-class Setup_Variable2(Setup_Variable1):
+    
+    #
+    
     def __len__(self): # 인스턴스에 대해서도 len 함수를 사용할 수 있게
         return len(self.data)
     
-    def __getitem__(self, indices):
+    def __getitem__(self, indices): # Variable slice 가능하게
         return cores.functions.get_item(self, indices)
     
     def __repr__(self) -> str: # variable print 했을 때 나올 수 있게
@@ -51,8 +52,10 @@ class Setup_Variable2(Setup_Variable1):
             return 'variable(None)'
         p = str(self.data).replace('\n', '\n' + ' '*9)
         return 'variable(' +p+')'
+    
+    #
 
-class Setup_Variable3(Setup_Variable2):
+class VariableProperty(VariableOverloading):
     @property # shape 메서드를 인스턴스 변수처럼 사용할 수 있음 : x.shape() 대신 x.shape로 호출
     def shape(self): # 모양
         return self.data.shape
@@ -73,7 +76,7 @@ class Setup_Variable3(Setup_Variable2):
     def T(self): # 전치행렬
         return cores.functions.transpose(self)
     
-class Setup_Variable4(Setup_Variable3):
+class VariableMathMethods(VariableProperty):
     # Tensor
     
     def reshape(self, *shape):
@@ -94,7 +97,7 @@ class Setup_Variable4(Setup_Variable3):
     
     #
     
-class Variable(Setup_Variable4):
+class Variable(VariableMathMethods):
     __array_prioty__ = 200
 
     def __init__(self, data, name=None): # data와 grad는 모두 넘파이 다차원 배열
