@@ -7,6 +7,7 @@ import numpy as np
 from math import factorial
 # import matplotlib.pyplot as plt
 
+import cores
 from cores import Variable
 from cores import plot_dot_graph
 import cores.functions as F
@@ -56,10 +57,14 @@ def gx2(x):
 
 if __name__=='__main__':
 
-    x = Variable(np.array([[1,2,3],[4,5,6]]))
-    indices = np.array([0,0,1])
-    y = x[:,2]
-    print(y)
+    train_set = cores.datasets.Spiral(train=True)
+    print(train_set[0])
+    print(len(train_set))
+
+    # x = Variable(np.array([[1,2,3],[4,5,6]]))
+    # indices = np.array([0,0,1])
+    # y = x[:,2]
+    # print(y)
     
     # x = Variable(np.random.randn(2,3))
     # W = Variable(np.random.randn(3,3))
