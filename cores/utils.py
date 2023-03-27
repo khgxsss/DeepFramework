@@ -153,7 +153,7 @@ def gradient_check(f, x, *args, rtol=1e-4, atol=1e-5, **kwargs):
 
     Args:
         f (callable): A function which gets `Variable`s and returns `Variable`s.
-        x (`ndarray` or `dezero.Variable`): A traget `Variable` for computing
+        x (`ndarray` or `cores.Variable`): A traget `Variable` for computing
             the gradient.
         *args: If `f` needs variables except `x`, you can specify with this
             argument.
@@ -195,7 +195,7 @@ def numerical_grad(f, x, *args, **kwargs):
 
     Args:
         f (callable): A function which gets `Variable`s and returns `Variable`s.
-        x (`ndarray` or `dezero.Variable`): A target `Variable` for computing
+        x (`ndarray` or `cores.Variable`): A target `Variable` for computing
             the gradient.
         *args: If `f` needs variables except `x`, you can specify with this
             argument.
@@ -244,7 +244,7 @@ def array_equal(a, b):
     """True if two arrays have the same shape and elements, False otherwise.
 
     Args:
-        a, b (numpy.ndarray or cupy.ndarray or dezero.Variable): input arrays
+        a, b (numpy.ndarray or cupy.ndarray or cores.Variable): input arrays
             to compare
 
     Returns:
@@ -261,7 +261,7 @@ def array_allclose(a, b, rtol=1e-4, atol=1e-5):
     tolerance.
 
     Args:
-        a, b (numpy.ndarray or cupy.ndarray or dezero.Variable): input arrays
+        a, b (numpy.ndarray or cupy.ndarray or cores.Variable): input arrays
             to compare
         rtol (float): The relative tolerance parameter.
         atol (float): The absolute tolerance parameter.
@@ -291,13 +291,13 @@ def show_progress(block_num, block_size, total_size):
     print(bar_template.format(bar, p), end='')
 
 
-cache_dir = os.path.join(os.path.expanduser('~'), '.dezero')
+cache_dir = os.path.join(os.path.expanduser('~'), '.khgxss')
 
 
 def get_file(url, file_name=None):
     """Download a file from the `url` if it is not in the cache.
 
-    The file at the `url` is downloaded to the `~/.dezero`.
+    The file at the `url` is downloaded to the `~/.khgxss`.
 
     Args:
         url (str): URL of the file.
