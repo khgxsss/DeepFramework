@@ -1,7 +1,7 @@
 import numpy as np
 
 from cores import cuda
-from cores.core import Function, as_variable
+from cores.core import Function, Variable, as_array, as_variable
 from cores.utils import logsumexp, reshape_sum_backward, sum_to_u
 
 # 계산용 추가 정의 클래스
@@ -88,6 +88,17 @@ class Linear(Function):
         gx = matmul(gy, W.T)
         gW = matmul(x.T, gy)
         return gx, gW, gb
+
+class RelU(Function):
+    def forward(self, x):
+        y = np.maximum(x, 0.0)
+        return y
+    
+    def backward(self, gy):
+        x, = self.inputs
+        mask = x.data > 0 # 0 이하라면 기울기 0으로 설정
+        gx = gy * mask
+        return gx
     
 class Sigmoid(Function):
     def forward(self, x):
@@ -106,6 +117,9 @@ class Sigmoid(Function):
 
 def linear(x, W, b=None):
     return Linear()(x, W, b)
+
+def relu(x):
+    return RelU()(x)
 
 def sigmoid(x):
     return Sigmoid()(x)
@@ -183,6 +197,14 @@ class SoftmaxCrossEntropy(Function):
 #
 
 # Loss funcs
+
+def accuracy(y, t): # Variable 과 ndarray 받지만 미분 불가능(내부계산에 np 사용)
+    y, t = as_variable(y), as_variable(t)
+
+    pred = y.data.argmax(axis=1).reshape(t.shape)
+    result = (pred == t.data)
+    acc = result.mean()
+    return Variable(as_array(acc))
 
 def log_softmax(x, axis=1):
     return LogSoftmax(axis)(x)

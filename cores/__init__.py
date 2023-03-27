@@ -14,10 +14,10 @@ if is_simple_core:
 else:
     from cores.core import Function, Parameter, Variable
     from cores.core import as_array, as_variable, no_grad, using_config
-    from cores.layers import Layer
-    from cores.models import Model
     from cores.dataloaders import DataLoader, SeqDataLoader
     from cores.datasets import Dataset
+    from cores.layers import Layer
+    from cores.models import Model
 
     import cores.cuda
     import cores.dataloaders

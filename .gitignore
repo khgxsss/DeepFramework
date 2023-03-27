@@ -1,2 +1,2 @@
 *.code-workspace
-cores/__pycache__
+\__pycache__

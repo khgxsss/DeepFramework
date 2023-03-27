@@ -9,7 +9,7 @@ from cores import cuda
 
 
 class DataLoader:
-    def __init__(self, dataset, batch_size, shuffle=True, gpu=False):
+    def __init__(self, dataset, batch_size, shuffle=True, gpu=False): # Dataset interface를 만족하는 instance, 배치 크기, 에폭별 shuffle 여부
         self.dataset = dataset
         self.batch_size = batch_size
         self.shuffle = shuffle
@@ -29,7 +29,7 @@ class DataLoader:
     def __iter__(self):
         return self
 
-    def __next__(self):
+    def __next__(self): # 미니배치를 꺼내 ndarray 인스턴스로 변환
         if self.iteration >= self.max_iter:
             self.reset()
             raise StopIteration

@@ -1,4 +1,5 @@
 import math
+from cores import cuda
 
 class Optimizer:
     def __init__(self):
